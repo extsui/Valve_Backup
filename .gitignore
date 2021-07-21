@@ -37,3 +37,11 @@
 /.settings/
 .mxproject
 *.launch
+
+# MDK-ARM
+MDK-ARM/DebugConfig/
+MDK-ARM/EventRecorderStub.scvd
+MDK-ARM/RTE/
+MDK-ARM/Valve.uvguix.*
+MDK-ARM/Valve/
+MDK-ARM/startup_stm32l010x4.lst
