@@ -10,7 +10,7 @@ namespace Console {
 void SetPort(UART_HandleTypeDef *pUartHandle);
 
 // UART にログを出力する (printf 相当)
-void Log(const char *fmt);
+void Log(const char *format, ...);
 
 // UART 受信開始
 void StartReceive();

@@ -25,7 +25,7 @@ public:
     }
 
     void SetPort(UART_HandleTypeDef *pUartHandle);
-    void Log(const char *fmt, ...);
+    void Log(const char *format, ...);
     void StartReceive();
     bool IsAvailable();
     uint8_t GetAvailableSize();
@@ -44,11 +44,11 @@ void ConsoleImpl::SetPort(UART_HandleTypeDef *pUartHandle)
     m_pUartHandle = pUartHandle;
 }
 
-void ConsoleImpl::Log(const char *fmt, ...)
+void ConsoleImpl::Log(const char *format, ...)
 {
     va_list ap;
-    va_start(ap, fmt);
-    vsprintf((char*)m_sendBuffer, fmt, ap);
+    va_start(ap, format);
+    vsprintf((char*)m_sendBuffer, format, ap);
     va_end(ap);
 
     uint8_t *p = m_sendBuffer;
@@ -102,9 +102,12 @@ void Console::SetPort(UART_HandleTypeDef *pUartHandle)
     m_Impl.SetPort(pUartHandle);
 }
 
-void Console::Log(const char *fmt)
+void Console::Log(const char *format, ...)
 {
-    m_Impl.Log(fmt);
+    va_list ap;
+    va_start(ap, format);
+    m_Impl.Log(format, ap);
+    va_end(ap);
 }
 
 void Console::StartReceive()

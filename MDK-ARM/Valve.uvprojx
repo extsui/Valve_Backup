@@ -597,6 +597,11 @@
               <FileType>8</FileType>
               <FilePath>..\Sources\Console.cpp</FilePath>
             </File>
+            <File>
+              <FileName>RotaryEncoder.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\Sources\RotaryEncoder.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
