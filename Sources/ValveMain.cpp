@@ -25,17 +25,13 @@ void ValveMain()
     rotaryEncoder.SetPortPin(&a, &b);
     rotaryEncoder.Sample();
 
-    // TODO: 
-    Console::Log("test: int = %d, str = %s\n", 123, "abc");
-
-/*
     int samplingCount = 0;
 
     while (1)
     {
         rotaryEncoder.Sample();
         if (samplingCount % 16 == 0) {
-            Console::Log("%6d %d % 2d % 3d\n",
+            Console::Log("%d %d %d %d\n",
                 samplingCount,
                 rotaryEncoder.IsUpdated(),
                 rotaryEncoder.GetDifference(),
@@ -46,5 +42,4 @@ void ValveMain()
         samplingCount++;
         HAL_Delay(1);
     }
-*/
 }
