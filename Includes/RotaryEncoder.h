@@ -24,6 +24,7 @@ public:
      : m_phaseA(nullptr, 0)
      , m_phaseB(nullptr, 0)
      , m_totalPosition(0)
+     , m_totalErrorCount(0)
      , m_difference(0)
      , m_isUpdated(false)
      , m_previousValue(0)
@@ -45,6 +46,7 @@ public:
     void Commit();
 
     int GetTotalPosition();
+    int GetTotalErrorCount();
     int GetDifference();
     bool IsUpdated();
 
@@ -56,6 +58,8 @@ private:
 
     // 起動時からの積算位置
     int m_totalPosition;
+    // 起動時からの積算エラー回数
+    int m_totalErrorCount;
 
     // 前回からの差分
     int m_difference;

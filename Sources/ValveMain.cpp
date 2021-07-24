@@ -31,11 +31,12 @@ void ValveMain()
     {
         rotaryEncoder.Sample();
         if (samplingCount % 16 == 0) {
-            Console::Log("%d %d %d %d\n",
+            Console::Log("%d %d %d %d %d\n",
                 samplingCount,
                 rotaryEncoder.IsUpdated(),
                 rotaryEncoder.GetDifference(),
-                rotaryEncoder.GetTotalPosition());
+                rotaryEncoder.GetTotalPosition(),
+                rotaryEncoder.GetTotalErrorCount());
             rotaryEncoder.Commit();
         }
 

@@ -43,12 +43,14 @@ void RotaryEncoder::Sample()
 
     int diff = static_cast<int>(currentValue) - m_previousValue;
     if ((diff == 1) || (diff == -1)) {
-        m_difference = diff;
+        m_difference += diff;
         m_isUpdated = true;
     } else if (diff == 0) {
-        // NOP
+        // 静止
     } else {
-        // 値が 2 以上
+        // エラー
+        // サンプリング周期より早く回した場合やチャタリング除去に失敗した場合に発生
+        m_totalErrorCount++;
     }
 
     m_previousValue = currentValue;
@@ -64,6 +66,11 @@ void RotaryEncoder::Commit()
 int RotaryEncoder::GetTotalPosition()
 {
     return m_totalPosition;
+}
+
+int RotaryEncoder::GetTotalErrorCount()
+{
+    return m_totalErrorCount;
 }
 
 int RotaryEncoder::GetDifference()
