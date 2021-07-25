@@ -3,13 +3,19 @@
 #include "RotaryEncoder.h"
 #include "main.h"
 
+#include "stm32l0xx_hal_tim.h"
+
 extern UART_HandleTypeDef huart2;
+
+extern TIM_HandleTypeDef htim2;
 
 namespace {
 
 constexpr int RotaryEncoderCount = 4;
 
 RotaryEncoder g_RotaryEncoder[RotaryEncoderCount];
+
+int g_SamplingCount = 0;
 
 struct RotaryEncoderPortPin
 {
@@ -43,6 +49,14 @@ RotaryEncoderPortPin RotaryEncoderPortPinSettings[] =
 
 }
 
+extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    for (auto& rotaryEncoder : g_RotaryEncoder) {
+        rotaryEncoder.Sample();
+    }
+    g_SamplingCount++;
+}
+
 void ValveMain()
 {
     Console::SetPort(&huart2);
@@ -51,27 +65,37 @@ void ValveMain()
     for (int i = 0; i < RotaryEncoderCount; i++) {
         auto setting = &RotaryEncoderPortPinSettings[i];
         g_RotaryEncoder[i].SetPortPin(&setting->PhaseA, &setting->PhaseB);
+        g_RotaryEncoder[i].Sample();
     }
 
-    RotaryEncoder& rotaryEncoder = g_RotaryEncoder[0];
-    rotaryEncoder.Sample();
+    HAL_TIM_Base_Start_IT(&htim2);
 
-    int samplingCount = 0;
+    while (1) {
+        if (g_SamplingCount % 50 == 0) {
+            int8_t difference[RotaryEncoderCount] = {
+                static_cast<int8_t>(g_RotaryEncoder[0].GetDifference()),
+                static_cast<int8_t>(g_RotaryEncoder[1].GetDifference()),
+                static_cast<int8_t>(g_RotaryEncoder[2].GetDifference()),
+                static_cast<int8_t>(g_RotaryEncoder[3].GetDifference()),
+            };
 
-    while (1)
-    {
-        rotaryEncoder.Sample();
-        if (samplingCount % 16 == 0) {
-            Console::Log("%d %d %d %d %d\n",
-                samplingCount,
-                rotaryEncoder.IsUpdated(),
-                rotaryEncoder.GetDifference(),
-                rotaryEncoder.GetTotalPosition(),
-                rotaryEncoder.GetTotalErrorCount());
-            rotaryEncoder.Commit();
+            bool hasDifference = (difference[0] != 0 || difference[1] != 0 || difference[2] != 0 || difference[3] != 0);
+           if (hasDifference) {
+                Console::Log("%d  % 3d  % 3d  % 3d  % 3d\n",
+                    g_SamplingCount,
+                    g_RotaryEncoder[0].GetDifference(),
+                    g_RotaryEncoder[1].GetDifference(),
+                    g_RotaryEncoder[2].GetDifference(),
+                    g_RotaryEncoder[3].GetDifference()
+                );
+            }
+
+            // Sample() と Commit() は要排他
+            HAL_NVIC_DisableIRQ(TIM2_IRQn);
+            for (auto& rotaryEncoder : g_RotaryEncoder) {
+                rotaryEncoder.Commit();
+            }
+            HAL_NVIC_EnableIRQ(TIM2_IRQn);
         }
-
-        samplingCount++;
-        HAL_Delay(1);
     }
 }
