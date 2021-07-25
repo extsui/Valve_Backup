@@ -1,5 +1,9 @@
 #include "RotaryEncoder.h"
 
+#ifdef ROTARY_ENCODER_DEBUG
+#include "Console.h"
+#endif
+
 void RotaryEncoder::SetPortPin(PortPin *phaseA, PortPin *phaseB)
 {
     // TODO: assert(phaseA.Port == nullptr);
@@ -22,6 +26,21 @@ void RotaryEncoder::Sample()
     //
     // < 変換手順 >
     //  0 ビット目と 1 ビット目を入れ替えた値と元の値を XOR をとる
+    //
+    // < 前回値との差分 >
+    // (正転)
+    // current  : 0  1  2  3  0  1  2  3  0 ..
+    // previous : *  0  1  2  3  0  1  2  3 ..
+    // diff     : *  1  1  1 -3  1  1  1 -3 ..
+    // ---------:------------------------------
+    // signed   : *  1  1  1  1  1  1  1  1 ..
+    //
+    // (逆転)
+    // current  : *  0  1  2  3  0  1  2  3 ..
+    // previous : 0  1  2  3  0  1  2  3  0 ..
+    // diff     : * -1 -1 -1  3 -1 -1 -1  3 ..
+    // ---------:------------------------------
+    // signed   : * -1 -1 -1 -1 -1 -1 -1 -1 ..
 
     auto pinStateToValue = [](GPIO_PinState state) -> uint8_t
     {
@@ -41,11 +60,30 @@ void RotaryEncoder::Sample()
     uint8_t grayCode = (pinA << 1) | pinB;
     uint8_t currentValue = ((grayCode >> 1) ^ grayCode) & 0x3;
 
-    int diff = static_cast<int>(currentValue) - m_previousValue;
-    if ((diff == 1) || (diff == -1)) {
-        m_difference += diff;
+    // 差 (0 ~ 3) を -2 ~ +1 の範囲に変換した値
+    // 00 : 0
+    // 01 : 1
+    // 10 : 2 --> -2
+    // 11 : 3 --> -1
+    uint8_t diff = (currentValue + (~m_previousValue + 1)) & 0x3;   // 2 の補数
+    int8_t diffSigned = static_cast<int8_t>(diff);
+    if (diff == 2) {
+        diffSigned = -2;
+    } else if (diff == 3) {
+        diffSigned = -1;
+    }
+
+#ifdef ROTARY_ENCODER_DEBUG
+    if (diff != 0) {
+        Console::Log("diff = %d (s: % d)  cur = %d (g: %d)  pre = %d\n",
+            diff, diffSigned, currentValue, grayCode, m_previousValue);
+    }
+#endif
+
+    if ((diffSigned == 1) || (diffSigned == -1)) {
+        m_difference += diffSigned;
         m_isUpdated = true;
-    } else if (diff == 0) {
+    } else if (diffSigned == 0) {
         // 静止
     } else {
         // エラー
