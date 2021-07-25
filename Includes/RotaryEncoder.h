@@ -27,7 +27,7 @@ public:
      , m_totalErrorCount(0)
      , m_difference(0)
      , m_isUpdated(false)
-     , m_previousValue(0)
+     , m_previousValue(0xFF)
     {
     }
 

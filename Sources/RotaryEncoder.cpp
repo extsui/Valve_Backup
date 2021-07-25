@@ -60,6 +60,12 @@ void RotaryEncoder::Sample()
     uint8_t grayCode = (pinA << 1) | pinB;
     uint8_t currentValue = ((grayCode >> 1) ^ grayCode) & 0x3;
 
+    // 初回の場合は誤ってエラー判定になるのでスキップ
+    if (m_previousValue == 0xFF) {
+        m_previousValue = currentValue;
+        return;
+    }
+
     // 差 (0 ~ 3) を -2 ~ +1 の範囲に変換した値
     // 00 : 0
     // 01 : 1
