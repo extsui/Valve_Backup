@@ -55,9 +55,9 @@ DMA_HandleTypeDef hdma_usart2_rx;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_I2C1_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -96,9 +96,9 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_I2C1_Init();
   MX_USART2_UART_Init();
   MX_TIM2_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
